@@ -13,7 +13,7 @@ import main.view.View;
 public class Main {
     public static void main(String[] args) {
         IModel model = new Model();
-        IView view = View.getInstance();
+        IView view = View.getInstance(model);
         IController controller = new Controller(model, view);
         view.setController(controller);
     }

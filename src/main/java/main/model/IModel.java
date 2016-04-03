@@ -4,9 +4,11 @@ package main.model;
  * @author Dmitriy Albot
  */
 public interface IModel {
-    ServerAnswer startServer(GraphicalMode mode);
+    void startServer(GraphicalMode mode);
 
     ServerAnswer pauseServer();
+
+    ServerAnswer continueServer();
 
     ServerAnswer stopServer();
 

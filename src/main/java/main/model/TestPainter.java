@@ -1,23 +1,40 @@
 package main.model;
 
+import java.io.*;
+
 /**
  * @author Dmitriy Albot
  */
 public class TestPainter implements Painter {
+    private BufferedReader br;
+
+    public TestPainter() {
+        init();
+    }
+
+    private void init() {
+        ClassLoader classLoader = getClass().getClassLoader();
+        File file = new File(classLoader.getResource("test.txt").getFile());
+        try {
+            br = new BufferedReader(new FileReader(file));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
-    public void startPainting() {
-        for (int i = 0; i < 10; i++) {
-            System.out.println(i);
+    public String startPainting() {
+        try {
+            String result = br.readLine();
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+            return result;
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
-
-    @Override
-    public void pausePainting() {
-
+        return null;
     }
 }

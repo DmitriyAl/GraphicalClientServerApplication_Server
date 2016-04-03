@@ -19,30 +19,31 @@ public class Controller implements IController {
 
     @Override
     public ServerAnswer startServer(final GraphicalMode mode) {
-        Thread startThread = new Thread(new Runnable() {
+        Thread startServerThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 model.startServer(mode);
             }
         });
-        startThread.start();
+        startServerThread.start();
         return null;
     }
 
     @Override
     public ServerAnswer stopServer() {
+        model.stopServer();
         return null;
     }
 
     @Override
     public ServerAnswer pauseServer() {
-
+        model.pauseServer();
         return null;
     }
 
     @Override
     public ServerAnswer continueServer() {
-        System.out.println("continued");
+        model.continueServer();
         return null;
     }
 }

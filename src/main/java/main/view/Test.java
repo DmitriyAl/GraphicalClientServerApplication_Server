@@ -5,6 +5,6 @@ package main.view;
  */
 public class Test {
     public static void main(String[] args) {
-        View view = View.getInstance();
+//        View view = View.getInstance();
     }
 }

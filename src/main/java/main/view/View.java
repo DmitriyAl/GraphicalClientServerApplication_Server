@@ -2,6 +2,7 @@ package main.view;
 
 import main.controller.IController;
 import main.model.GraphicalMode;
+import main.model.IModel;
 import main.model.Observer;
 
 import javax.swing.*;
@@ -14,9 +15,9 @@ import java.awt.event.ActionListener;
  */
 public class View implements IView, Observer {
     private IController controller;
+    private IModel model;
     private JFrame frame;
     private JPanel background;
-    private JButton typeConfirmButton;
     private JButton startButton;
     private JRadioButton pauseButton;
     private JButton stopButton;
@@ -24,13 +25,14 @@ public class View implements IView, Observer {
     private JLabel status;
     private static View instance;
 
-    private View() {
+    private View(IModel model) {
+        this.model = model;
         initGraphics();
     }
 
-    public static View getInstance() {
+    public static View getInstance(IModel model) {
         if (instance == null) {
-            instance = new View();
+            instance = new View(model);
         }
         return instance;
     }
@@ -43,74 +45,61 @@ public class View implements IView, Observer {
     private void initGraphics() {
         frame = new JFrame("Graphical Server");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        background = new JPanel();
-        GroupLayout layout = new GroupLayout(background);
+        GroupLayout layout = new GroupLayout(frame.getContentPane());
+        frame.getContentPane().setLayout(layout);
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
-        background.setLayout(layout);
         graphicalMode = new JComboBox<>(GraphicalMode.values());
-        typeConfirmButton = new JButton("Confirm painting mode");
         startButton = new JButton("Start server");
         pauseButton = new JRadioButton("Pause server");
         stopButton = new JButton("Stop server");
-        startButton.setEnabled(false);
+        status = new JLabel("Ok");
+        startButton.setEnabled(true);
         pauseButton.setEnabled(false);
         stopButton.setEnabled(false);
         layout.setHorizontalGroup(layout.createParallelGroup()
                 .addGroup(layout.createSequentialGroup()
                         .addComponent(graphicalMode)
-                        .addComponent(typeConfirmButton))
+                        .addComponent(pauseButton))
                 .addGroup(layout.createSequentialGroup()
                         .addComponent(startButton)
-                        .addComponent(pauseButton)
-                        .addComponent(stopButton)));
-        layout.linkSize(SwingConstants.HORIZONTAL, graphicalMode, typeConfirmButton);
+                        .addComponent(stopButton))
+                .addComponent(status));
+        layout.linkSize(SwingConstants.HORIZONTAL, graphicalMode, pauseButton);
         layout.setVerticalGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup()
                         .addComponent(graphicalMode)
-                        .addComponent(typeConfirmButton))
+                        .addComponent(pauseButton))
                 .addGroup(layout.createParallelGroup()
                         .addComponent(startButton)
-                        .addComponent(pauseButton)
-                        .addComponent(stopButton)));
+                        .addComponent(stopButton))
+                .addComponent(status));
         status = new JLabel();
         status.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        frame.add(BorderLayout.CENTER, background);
-        frame.add(BorderLayout.SOUTH, status);
         frame.setResizable(false);
-        frame.setSize(380, 130);
+        frame.pack();
         frame.setVisible(true);
         buttonListenersConfig();
     }
 
     private void buttonListenersConfig() {
-        typeConfirmButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                graphicalMode.setEnabled(false);
-                typeConfirmButton.setEnabled(false);
-                startButton.setEnabled(true);
-                pauseButton.setEnabled(true);
-                stopButton.setEnabled(true);
-            }
-        });
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.startServer((GraphicalMode) graphicalMode.getSelectedItem());
+                graphicalMode.setEnabled(false);
                 startButton.setEnabled(false);
+                pauseButton.setEnabled(true);
+                stopButton.setEnabled(true);
             }
         });
         pauseButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JRadioButton source = (JRadioButton) e.getSource();
-                if (source.isSelected()) {
+                if (pauseButton.isSelected()) {
                     controller.pauseServer();
-                    status.setText("Server paused");
                 } else {
                     controller.continueServer();
-                    status.setText("Server continue working");
                 }
             }
         });
@@ -119,8 +108,7 @@ public class View implements IView, Observer {
             public void actionPerformed(ActionEvent e) {
                 controller.stopServer();
                 graphicalMode.setEnabled(true);
-                typeConfirmButton.setEnabled(true);
-                startButton.setEnabled(false);
+                startButton.setEnabled(true);
                 pauseButton.setEnabled(false);
                 stopButton.setEnabled(false);
             }
@@ -129,5 +117,6 @@ public class View implements IView, Observer {
 
     @Override
     public void update() {
+
     }
 }
