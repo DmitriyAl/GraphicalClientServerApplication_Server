@@ -8,11 +8,5 @@ import main.model.ServerStatus;
  */
 public interface IController {
     ServerStatus startServer(GraphicalMode mode);
-
-    ServerStatus stopServer();
-
-    ServerStatus pauseServer();
-
-    ServerStatus continueServer();
 }
 

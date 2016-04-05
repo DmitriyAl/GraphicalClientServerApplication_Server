@@ -12,12 +12,12 @@ import java.util.List;
  * @author Dmitriy Albot
  */
 public class Model implements IModel {
+    public static final int PORT = 29228;
     private Painter painter;
     private List<Observer> observers;
     private List<PrintWriter> writers;
-    private volatile boolean isPaused;
-    private volatile boolean isStopped;
     private ServerStatus status;
+    private ServerSocket serverSocket;
     private final Object lock = new Object();
 
     public Model() {
@@ -61,14 +61,26 @@ public class Model implements IModel {
 
     @Override
     public void startServer(GraphicalMode mode) {
-        establishConnection(mode);
+        establishConnection();
+        startSendingMessage(mode);
     }
 
-    private void establishConnection(GraphicalMode mode) {
-        isStopped = false;
+    private void establishConnection() {
+        if (serverSocket == null) {
+            try {
+                serverSocket = new ServerSocket(PORT);
+            } catch (IOException e) {
+                status = ServerStatus.ERROR;
+                notifyModelObservers();
+//                e.printStackTrace();
+            }
+        }
+    }
+
+    private void startSendingMessage(GraphicalMode mode) {
         painter = PainterFactory.getPainter(mode);
-        try (ServerSocket serverSocket = new ServerSocket(29228)) {
-            while (!isStopped) {
+        try {
+            while (true) {
                 status = ServerStatus.OK;
                 notifyModelObservers();
                 Socket socket = serverSocket.accept();
@@ -86,22 +98,6 @@ public class Model implements IModel {
             notifyModelObservers();
             System.out.println("Server socket is unavailable");
         }
-    }
-
-    @Override
-    public void pauseServer() {
-        isPaused = true;
-    }
-
-    @Override
-    public void continueServer() {
-        isPaused = false;
-        lock.notifyAll();
-    }
-
-    @Override
-    public void stopServer() {
-        isStopped = true;
     }
 
     @Override

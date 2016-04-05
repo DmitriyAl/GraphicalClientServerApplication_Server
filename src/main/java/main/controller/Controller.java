@@ -28,22 +28,4 @@ public class Controller implements IController {
         startServerThread.start();
         return null;
     }
-
-    @Override
-    public ServerStatus stopServer() {
-        model.stopServer();
-        return null;
-    }
-
-    @Override
-    public ServerStatus pauseServer() {
-        model.pauseServer();
-        return null;
-    }
-
-    @Override
-    public ServerStatus continueServer() {
-        model.continueServer();
-        return null;
-    }
 }

@@ -6,12 +6,6 @@ package main.model;
 public interface IModel {
     void startServer(GraphicalMode mode);
 
-    void pauseServer();
-
-    void continueServer();
-
-    void stopServer();
-
     ServerStatus getStatus();
 
     void notifyModelObservers();

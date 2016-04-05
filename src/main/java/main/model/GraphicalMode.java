@@ -5,5 +5,4 @@ package main.model;
  */
 public enum GraphicalMode {
     TEST,
-    RANDOM_VALUE,
 }

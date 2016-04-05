@@ -16,9 +16,7 @@ public class View implements IView, Observer {
     private IController controller;
     private IModel model;
     private JFrame frame;
-    private JButton startButton;
-    private JRadioButton pauseButton;
-    private JButton stopButton;
+    private JButton startSendingButton;
     private JComboBox<GraphicalMode> graphicalMode;
     private JLabel status;
     private static View instance;
@@ -49,31 +47,20 @@ public class View implements IView, Observer {
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
         graphicalMode = new JComboBox<>(GraphicalMode.values());
-        startButton = new JButton("Start server");
-        pauseButton = new JRadioButton("Pause server");
-        stopButton = new JButton("Stop server");
+        startSendingButton = new JButton("Start sending");
         status = new JLabel();
-        startButton.setEnabled(true);
-        pauseButton.setEnabled(false);
-        stopButton.setEnabled(false);
         layout.setHorizontalGroup(layout.createParallelGroup()
                 .addGroup(layout.createSequentialGroup()
                         .addComponent(graphicalMode)
-                        .addComponent(pauseButton))
-                .addGroup(layout.createSequentialGroup()
-                        .addComponent(startButton)
-                        .addComponent(stopButton))
+                        .addComponent(startSendingButton))
                 .addComponent(status));
-        layout.linkSize(SwingConstants.HORIZONTAL, graphicalMode, pauseButton);
+        layout.linkSize(SwingConstants.HORIZONTAL, startSendingButton);
         layout.setVerticalGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup()
                         .addComponent(graphicalMode)
-                        .addComponent(pauseButton))
-                .addGroup(layout.createParallelGroup()
-                        .addComponent(startButton)
-                        .addComponent(stopButton))
+                        .addComponent(startSendingButton))
                 .addComponent(status));
-        status.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        status.setBorder(BorderFactory.createEmptyBorder(5, 0, 10, 5));
         frame.setResizable(false);
         frame.pack();
         frame.setVisible(true);
@@ -81,34 +68,12 @@ public class View implements IView, Observer {
     }
 
     private void buttonListenersConfig() {
-        startButton.addActionListener(new ActionListener() {
+        startSendingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.startServer((GraphicalMode) graphicalMode.getSelectedItem());
                 graphicalMode.setEnabled(false);
-                startButton.setEnabled(false);
-                pauseButton.setEnabled(true);
-                stopButton.setEnabled(true);
-            }
-        });
-        pauseButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (pauseButton.isSelected()) {
-                    controller.pauseServer();
-                } else {
-                    controller.continueServer();
-                }
-            }
-        });
-        stopButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                controller.stopServer();
-                graphicalMode.setEnabled(true);
-                startButton.setEnabled(true);
-                pauseButton.setEnabled(false);
-                stopButton.setEnabled(false);
+                startSendingButton.setEnabled(false);
             }
         });
     }
@@ -117,9 +82,8 @@ public class View implements IView, Observer {
     public void update() {
         switch (model.getStatus()) {
             case FINISHED:
-                startButton.setEnabled(true);
-                pauseButton.setEnabled(false);
-                stopButton.setEnabled(false);
+                graphicalMode.setEnabled(true);
+                startSendingButton.setEnabled(true);
             default:
                 status.setText("Server status: " + model.getStatus().toString());
                 break;
