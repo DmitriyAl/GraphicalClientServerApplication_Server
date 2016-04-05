@@ -33,11 +33,11 @@ public class Model implements IModel {
             while (true) {
                 synchronized (lock) {
                     String command = painter.startPainting();
-                    System.out.println(command);
                     tellClients(command);
                     if (command == null) {
                         break;
                     }
+                    System.out.println(command); //todo delete
                 }
             }
             status = ServerStatus.FINISHED;
@@ -72,7 +72,7 @@ public class Model implements IModel {
             } catch (IOException e) {
                 status = ServerStatus.ERROR;
                 notifyModelObservers();
-//                e.printStackTrace();
+//                e.printStackTrace(); //todo logging
             }
         }
     }
@@ -96,7 +96,7 @@ public class Model implements IModel {
         } catch (IOException e) {
             status = ServerStatus.ERROR;
             notifyModelObservers();
-            System.out.println("Server socket is unavailable");
+            System.out.println("Server socket is unavailable"); //todo delete
         }
     }
 
