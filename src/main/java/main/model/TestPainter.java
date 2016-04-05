@@ -13,13 +13,8 @@ public class TestPainter implements Painter {
     }
 
     private void init() {
-        ClassLoader classLoader = getClass().getClassLoader();
-        File file = new File(classLoader.getResource("test.txt").getFile());
-        try {
-            br = new BufferedReader(new FileReader(file));
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+        InputStream in = getClass().getResourceAsStream("/test.txt");
+        br = new BufferedReader(new InputStreamReader(in));
     }
 
     @Override
