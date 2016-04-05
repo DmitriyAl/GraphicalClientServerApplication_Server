@@ -1,18 +1,18 @@
 package main.controller;
 
 import main.model.GraphicalMode;
-import main.model.ServerAnswer;
+import main.model.ServerStatus;
 
 /**
  * @author Dmitriy Albot
  */
 public interface IController {
-    ServerAnswer startServer(GraphicalMode mode);
+    ServerStatus startServer(GraphicalMode mode);
 
-    ServerAnswer stopServer();
+    ServerStatus stopServer();
 
-    ServerAnswer pauseServer();
+    ServerStatus pauseServer();
 
-    ServerAnswer continueServer();
+    ServerStatus continueServer();
 }
 

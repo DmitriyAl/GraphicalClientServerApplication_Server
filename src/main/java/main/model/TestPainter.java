@@ -27,7 +27,7 @@ public class TestPainter implements Painter {
         try {
             String result = br.readLine();
             try {
-                Thread.sleep(500);
+                Thread.sleep(42);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

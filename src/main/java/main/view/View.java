@@ -6,7 +6,6 @@ import main.model.IModel;
 import main.model.Observer;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -17,7 +16,6 @@ public class View implements IView, Observer {
     private IController controller;
     private IModel model;
     private JFrame frame;
-    private JPanel background;
     private JButton startButton;
     private JRadioButton pauseButton;
     private JButton stopButton;
@@ -27,6 +25,7 @@ public class View implements IView, Observer {
 
     private View(IModel model) {
         this.model = model;
+        this.model.addObserver(this);
         initGraphics();
     }
 
@@ -53,7 +52,7 @@ public class View implements IView, Observer {
         startButton = new JButton("Start server");
         pauseButton = new JRadioButton("Pause server");
         stopButton = new JButton("Stop server");
-        status = new JLabel("Ok");
+        status = new JLabel();
         startButton.setEnabled(true);
         pauseButton.setEnabled(false);
         stopButton.setEnabled(false);
@@ -74,7 +73,6 @@ public class View implements IView, Observer {
                         .addComponent(startButton)
                         .addComponent(stopButton))
                 .addComponent(status));
-        status = new JLabel();
         status.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         frame.setResizable(false);
         frame.pack();
@@ -117,6 +115,14 @@ public class View implements IView, Observer {
 
     @Override
     public void update() {
-
+        switch (model.getStatus()) {
+            case FINISHED:
+                startButton.setEnabled(true);
+                pauseButton.setEnabled(false);
+                stopButton.setEnabled(false);
+            default:
+                status.setText("Server status: " + model.getStatus().toString());
+                break;
+        }
     }
 }

@@ -3,7 +3,8 @@ package main.model;
 /**
  * @author Dmitriy Albot
  */
-public enum ServerAnswer {
+public enum ServerStatus {
     OK,
-    ERROR
+    ERROR,
+    FINISHED
 }

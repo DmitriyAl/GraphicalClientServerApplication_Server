@@ -1,11 +1,11 @@
 package main.model;
 
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -14,61 +14,105 @@ import java.util.List;
 public class Model implements IModel {
     private Painter painter;
     private List<Observer> observers;
+    private List<PrintWriter> writers;
     private volatile boolean isPaused;
     private volatile boolean isStopped;
-    private Object lock = new Object();
+    private ServerStatus status;
+    private final Object lock = new Object();
 
     public Model() {
+        this.status = ServerStatus.OK;
         observers = new ArrayList<>();
+        writers = new ArrayList<>();
     }
 
-    @Override
-    public void startServer(GraphicalMode mode) {
-        isStopped = false;
-        painter = PainterFactory.getPainter(mode);
-        try (ServerSocket serverSocket = new ServerSocket(29228)) {
-            while (!isStopped) {
-                Socket socket = serverSocket.accept();
-                String command = painter.startPainting();
-                PrintWriter writer = new PrintWriter(socket.getOutputStream());
-                writer.println(command);
-                writer.close();
-                System.out.println(command);
-                socket.close();
+    public class RequestHandler implements Runnable {
+
+        @Override
+        public void run() {
+            while (true) {
+                synchronized (lock) {
+                    String command = painter.startPainting();
+                    System.out.println(command);
+                    tellClients(command);
+                    if (command == null) {
+                        break;
+                    }
+                }
             }
-            serverSocket.close();
-        } catch (IOException e) {
-            System.out.println("Server socket is unavailable");
-        } finally {
+            status = ServerStatus.FINISHED;
+            notifyModelObservers();
+        }
+    }
+
+    private void tellClients(String command) {
+        Iterator<PrintWriter> iterator = writers.iterator();
+        while (iterator.hasNext()) {
+            PrintWriter writer = iterator.next();
+            writer.println(command);
+            writer.flush();
         }
     }
 
     @Override
-    public ServerAnswer pauseServer() {
-        isPaused = true;
-        return null;
+    public ServerStatus getStatus() {
+        return status;
     }
 
     @Override
-    public ServerAnswer continueServer() {
+    public void startServer(GraphicalMode mode) {
+        establishConnection(mode);
+    }
+
+    private void establishConnection(GraphicalMode mode) {
+        isStopped = false;
+        painter = PainterFactory.getPainter(mode);
+        try (ServerSocket serverSocket = new ServerSocket(29228)) {
+            while (!isStopped) {
+                status = ServerStatus.OK;
+                notifyModelObservers();
+                Socket socket = serverSocket.accept();
+                PrintWriter writer = null;
+                try {
+                    writer = new PrintWriter(socket.getOutputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                writers.add(writer);
+                new Thread(new RequestHandler()).start();
+            }
+        } catch (IOException e) {
+            status = ServerStatus.ERROR;
+            notifyModelObservers();
+            System.out.println("Server socket is unavailable");
+        }
+    }
+
+    @Override
+    public void pauseServer() {
+        isPaused = true;
+    }
+
+    @Override
+    public void continueServer() {
         isPaused = false;
         lock.notifyAll();
-        return null;
     }
 
     @Override
-    public ServerAnswer stopServer() {
+    public void stopServer() {
         isStopped = true;
-        return null;
     }
 
     @Override
-    public void notifyClients() {
-
+    public void notifyModelObservers() {
+        for (Observer observer : observers) {
+            observer.update();
+        }
     }
 
     @Override
     public void addObserver(Observer observer) {
-
+        observers.add(observer);
     }
 }

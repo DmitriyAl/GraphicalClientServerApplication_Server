@@ -2,7 +2,7 @@ package main.controller;
 
 import main.model.GraphicalMode;
 import main.model.IModel;
-import main.model.ServerAnswer;
+import main.model.ServerStatus;
 import main.view.IView;
 
 /**
@@ -18,7 +18,7 @@ public class Controller implements IController {
     }
 
     @Override
-    public ServerAnswer startServer(final GraphicalMode mode) {
+    public ServerStatus startServer(final GraphicalMode mode) {
         Thread startServerThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -30,19 +30,19 @@ public class Controller implements IController {
     }
 
     @Override
-    public ServerAnswer stopServer() {
+    public ServerStatus stopServer() {
         model.stopServer();
         return null;
     }
 
     @Override
-    public ServerAnswer pauseServer() {
+    public ServerStatus pauseServer() {
         model.pauseServer();
         return null;
     }
 
     @Override
-    public ServerAnswer continueServer() {
+    public ServerStatus continueServer() {
         model.continueServer();
         return null;
     }
