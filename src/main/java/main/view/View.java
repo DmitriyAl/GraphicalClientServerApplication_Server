@@ -17,6 +17,7 @@ public class View implements IView, Observer {
     private IModel model;
     private JFrame frame;
     private JButton startSendingButton;
+    private JRadioButton pauseButton;
     private JComboBox<GraphicalMode> graphicalMode;
     private JLabel status;
     private static View instance;
@@ -48,17 +49,21 @@ public class View implements IView, Observer {
         layout.setAutoCreateContainerGaps(true);
         graphicalMode = new JComboBox<>(GraphicalMode.values());
         startSendingButton = new JButton("Start sending");
+        pauseButton = new JRadioButton("Pause");
+        pauseButton.setEnabled(false);
         status = new JLabel();
         layout.setHorizontalGroup(layout.createParallelGroup()
                 .addGroup(layout.createSequentialGroup()
                         .addComponent(graphicalMode)
-                        .addComponent(startSendingButton))
+                        .addComponent(startSendingButton)
+                        .addComponent(pauseButton))
                 .addComponent(status));
         layout.linkSize(SwingConstants.HORIZONTAL, startSendingButton);
         layout.setVerticalGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup()
                         .addComponent(graphicalMode)
-                        .addComponent(startSendingButton))
+                        .addComponent(startSendingButton)
+                        .addComponent(pauseButton))
                 .addComponent(status));
         status.setBorder(BorderFactory.createEmptyBorder(5, 0, 10, 5));
         frame.setResizable(false);
@@ -74,6 +79,17 @@ public class View implements IView, Observer {
                 controller.startServer((GraphicalMode) graphicalMode.getSelectedItem());
                 graphicalMode.setEnabled(false);
                 startSendingButton.setEnabled(false);
+                pauseButton.setEnabled(true);
+            }
+        });
+        pauseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (pauseButton.isSelected()) {
+                    controller.pauseServer();
+                } else {
+                    controller.resumeServer();
+                }
             }
         });
     }

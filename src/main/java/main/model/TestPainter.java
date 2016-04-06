@@ -22,7 +22,7 @@ public class TestPainter implements Painter {
         try {
             String result = br.readLine();
             try {
-                Thread.sleep(42);
+                Thread.sleep(420);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

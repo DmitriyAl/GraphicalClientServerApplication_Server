@@ -19,6 +19,7 @@ public class Model implements IModel {
     private ServerStatus status;
     private ServerSocket serverSocket;
     private final Object lock = new Object();
+    private volatile boolean isPaused;
 
     public Model() {
         this.status = ServerStatus.OK;
@@ -32,6 +33,13 @@ public class Model implements IModel {
         public void run() {
             while (true) {
                 synchronized (lock) {
+                    if (isPaused) {
+                        try {
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     String command = painter.startPainting();
                     tellClients(command);
                     if (command == null) {
@@ -63,6 +71,19 @@ public class Model implements IModel {
     public void startServer(GraphicalMode mode) {
         establishConnection();
         startSendingMessage(mode);
+    }
+
+    @Override
+    public void pauseServer() {
+        isPaused = true;
+    }
+
+    @Override
+    public void resumeServer() {
+        synchronized (lock) {
+            isPaused = false;
+            lock.notifyAll();
+        }
     }
 
     private void establishConnection() {

@@ -28,4 +28,20 @@ public class Controller implements IController {
         startServerThread.start();
         return null;
     }
+
+    @Override
+    public void pauseServer() {
+        model.pauseServer();
+    }
+
+    @Override
+    public void resumeServer() {
+        Thread resumeThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                model.resumeServer();
+            }
+        });
+        resumeThread.start();
+    }
 }
