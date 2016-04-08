@@ -44,4 +44,30 @@ public class Controller implements IController {
         });
         resumeThread.start();
     }
+
+    @Override
+    public void setSendingSpeed(final int speed) {
+        Thread changeSendingSpeedThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                model.setSendingSpeed(speed);
+            }
+        });
+        changeSendingSpeedThread.start();
+    }
+
+    @Override
+    public boolean setPort(String portNumber) {
+        int value;
+        try {
+            value = Integer.parseInt(portNumber);
+            if (value < 0 || value > 65535) {
+                return false;
+            }
+            model.setPort(value);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
 }

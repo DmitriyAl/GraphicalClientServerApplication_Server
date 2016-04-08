@@ -15,4 +15,8 @@ public interface IModel {
     void notifyModelObservers();
 
     void addObserver(Observer observer);
+
+    void setSendingSpeed(int speed);
+
+    void setPort(int value);
 }

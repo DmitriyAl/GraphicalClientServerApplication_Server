@@ -12,5 +12,9 @@ public interface IController {
     void pauseServer();
 
     void resumeServer();
+
+    void setSendingSpeed(int speed);
+
+    boolean setPort(String portNumber);
 }
 

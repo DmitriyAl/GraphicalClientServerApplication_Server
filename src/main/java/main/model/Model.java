@@ -12,7 +12,7 @@ import java.util.List;
  * @author Dmitriy Albot
  */
 public class Model implements IModel {
-    public static final int PORT = 29228;
+    private int port;
     private Painter painter;
     private List<Observer> observers;
     private List<PrintWriter> writers;
@@ -20,6 +20,7 @@ public class Model implements IModel {
     private ServerSocket serverSocket;
     private final Object lock = new Object();
     private volatile boolean isPaused;
+    private int sendingSpeed;
 
     public Model() {
         this.status = ServerStatus.OK;
@@ -39,6 +40,11 @@ public class Model implements IModel {
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
+                    }
+                    try {
+                        Thread.sleep(sendingSpeed);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                     String command = painter.startPainting();
                     tellClients(command);
@@ -89,7 +95,7 @@ public class Model implements IModel {
     private void establishConnection() {
         if (serverSocket == null) {
             try {
-                serverSocket = new ServerSocket(PORT);
+                serverSocket = new ServerSocket(port);
             } catch (IOException e) {
                 status = ServerStatus.ERROR;
                 notifyModelObservers();
@@ -131,5 +137,15 @@ public class Model implements IModel {
     @Override
     public void addObserver(Observer observer) {
         observers.add(observer);
+    }
+
+    @Override
+    public void setSendingSpeed(int speed) {
+        this.sendingSpeed = speed;
+    }
+
+    @Override
+    public void setPort(int port) {
+        this.port = port;
     }
 }

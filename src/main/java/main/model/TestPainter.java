@@ -7,6 +7,7 @@ import java.io.*;
  */
 public class TestPainter implements Painter {
     private BufferedReader br;
+    private int sendingSpeed;
 
     public TestPainter() {
         init();
@@ -21,11 +22,6 @@ public class TestPainter implements Painter {
     public String startPainting() {
         try {
             String result = br.readLine();
-            try {
-                Thread.sleep(420);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             return result;
         } catch (IOException e) {
             e.printStackTrace();

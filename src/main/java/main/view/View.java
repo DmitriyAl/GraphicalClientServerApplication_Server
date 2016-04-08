@@ -6,6 +6,9 @@ import main.model.IModel;
 import main.model.Observer;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -19,7 +22,10 @@ public class View implements IView, Observer {
     private JButton startSendingButton;
     private JRadioButton pauseButton;
     private JComboBox<GraphicalMode> graphicalMode;
+    private JTextField port;
     private JLabel status;
+    private JLabel sendingSpeed;
+    private JSlider speedSlider;
     private static View instance;
 
     private View(IModel model) {
@@ -51,10 +57,21 @@ public class View implements IView, Observer {
         startSendingButton = new JButton("Start sending");
         pauseButton = new JRadioButton("Pause");
         pauseButton.setEnabled(false);
+        speedSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 500, 50);
+        speedSlider.setPreferredSize(new Dimension(100, 20));
+        speedSlider.setPaintTicks(true);
+        speedSlider.setPaintTrack(true);
+        speedSlider.setSnapToTicks(true);
+        port = new JTextField("29228");
         status = new JLabel();
+        sendingSpeed = new JLabel(speedSlider.getValue() + " commands/ms");
         layout.setHorizontalGroup(layout.createParallelGroup()
                 .addGroup(layout.createSequentialGroup()
                         .addComponent(graphicalMode)
+                        .addComponent(speedSlider)
+                        .addComponent(sendingSpeed))
+                .addGroup(layout.createSequentialGroup()
+                        .addComponent(port)
                         .addComponent(startSendingButton)
                         .addComponent(pauseButton))
                 .addComponent(status));
@@ -62,6 +79,10 @@ public class View implements IView, Observer {
         layout.setVerticalGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup()
                         .addComponent(graphicalMode)
+                        .addComponent(speedSlider)
+                        .addComponent(sendingSpeed))
+                .addGroup(layout.createParallelGroup()
+                        .addComponent(port)
                         .addComponent(startSendingButton)
                         .addComponent(pauseButton))
                 .addComponent(status));
@@ -76,10 +97,18 @@ public class View implements IView, Observer {
         startSendingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String portNumber = port.getText();
+                boolean isCorrect = controller.setPort(portNumber);
+                if (!isCorrect) {
+                    status.setText("Incorrect port");
+                    return;
+                }
+                controller.setSendingSpeed(speedSlider.getValue());
                 controller.startServer((GraphicalMode) graphicalMode.getSelectedItem());
                 graphicalMode.setEnabled(false);
                 startSendingButton.setEnabled(false);
                 pauseButton.setEnabled(true);
+                port.setEnabled(false);
             }
         });
         pauseButton.addActionListener(new ActionListener() {
@@ -92,6 +121,14 @@ public class View implements IView, Observer {
                 }
             }
         });
+        speedSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int speed = speedSlider.getValue();
+                sendingSpeed.setText(speed + " commands/ms");
+                controller.setSendingSpeed(speed);
+            }
+        });
     }
 
     @Override
@@ -100,6 +137,8 @@ public class View implements IView, Observer {
             case FINISHED:
                 graphicalMode.setEnabled(true);
                 startSendingButton.setEnabled(true);
+                pauseButton.setEnabled(false);
+                port.setEnabled(true);
             default:
                 status.setText("Server status: " + model.getStatus().toString());
                 break;
