@@ -13,6 +13,7 @@ import java.util.List;
  */
 public class Model implements IModel {
     private int port;
+    private int sendingSpeed;
     private Painter painter;
     private List<Observer> observers;
     private List<PrintWriter> writers;
@@ -20,7 +21,6 @@ public class Model implements IModel {
     private ServerSocket serverSocket;
     private final Object lock = new Object();
     private volatile boolean isPaused;
-    private int sendingSpeed;
 
     public Model() {
         this.status = ServerStatus.OK;

@@ -97,18 +97,7 @@ public class View implements IView, Observer {
         startSendingButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String portNumber = port.getText();
-                boolean isCorrect = controller.setPort(portNumber);
-                if (!isCorrect) {
-                    status.setText("Incorrect port");
-                    return;
-                }
-                controller.setSendingSpeed(speedSlider.getValue());
-                controller.startServer((GraphicalMode) graphicalMode.getSelectedItem());
-                graphicalMode.setEnabled(false);
-                startSendingButton.setEnabled(false);
-                pauseButton.setEnabled(true);
-                port.setEnabled(false);
+                startSettings();
             }
         });
         pauseButton.addActionListener(new ActionListener() {
@@ -129,6 +118,21 @@ public class View implements IView, Observer {
                 controller.setSendingSpeed(speed);
             }
         });
+    }
+
+    private void startSettings() {
+        String portNumber = port.getText();
+        boolean isCorrect = controller.setPort(portNumber);
+        if (!isCorrect) {
+            status.setText("Incorrect port");
+            return;
+        }
+        controller.setSendingSpeed(speedSlider.getValue());
+        controller.startServer((GraphicalMode) graphicalMode.getSelectedItem());
+        graphicalMode.setEnabled(false);
+        startSendingButton.setEnabled(false);
+        pauseButton.setEnabled(true);
+        port.setEnabled(false);
     }
 
     @Override
