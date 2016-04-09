@@ -1,5 +1,7 @@
 package main.model;
 
+import org.apache.log4j.Logger;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
@@ -21,6 +23,7 @@ public class Model implements IModel {
     private ServerSocket serverSocket;
     private final Object lock = new Object();
     private volatile boolean isPaused;
+    private static Logger log = Logger.getLogger(Model.class);
 
     public Model() {
         this.status = ServerStatus.OK;
@@ -38,13 +41,13 @@ public class Model implements IModel {
                         try {
                             lock.wait();
                         } catch (InterruptedException e) {
-                            e.printStackTrace();
+                            log.warn("Failure to pause the server", e);
                         }
                     }
                     try {
                         Thread.sleep(sendingSpeed);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        log.warn("Failure to change command sending speed", e);
                     }
                     String command = painter.startPainting();
                     tellClients(command);
@@ -82,6 +85,7 @@ public class Model implements IModel {
     @Override
     public void pauseServer() {
         isPaused = true;
+        log.info("Server is paused");
     }
 
     @Override
@@ -89,6 +93,7 @@ public class Model implements IModel {
         synchronized (lock) {
             isPaused = false;
             lock.notifyAll();
+            log.info("Server is resumed");
         }
     }
 
@@ -96,10 +101,11 @@ public class Model implements IModel {
         if (serverSocket == null) {
             try {
                 serverSocket = new ServerSocket(port);
+                log.info("Server socket is opened");
             } catch (IOException e) {
                 status = ServerStatus.ERROR;
                 notifyModelObservers();
-//                e.printStackTrace(); //todo logging
+                log.error("Failure to open service socket", e);
             }
         }
     }
@@ -115,7 +121,7 @@ public class Model implements IModel {
                 try {
                     writer = new PrintWriter(socket.getOutputStream());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    log.warn("Failure to open a new PrintWriter to client", e);
                 }
                 writers.add(writer);
                 new Thread(new RequestHandler()).start();
@@ -123,7 +129,7 @@ public class Model implements IModel {
         } catch (IOException e) {
             status = ServerStatus.ERROR;
             notifyModelObservers();
-            System.out.println("Server socket is unavailable"); //todo delete
+            log.error("Server socket is unavailable", e);
         }
     }
 

@@ -1,5 +1,7 @@
 package main.model;
 
+import org.apache.log4j.Logger;
+
 import java.io.*;
 
 /**
@@ -7,7 +9,7 @@ import java.io.*;
  */
 public class TestPainter implements Painter {
     private BufferedReader br;
-    private int sendingSpeed;
+    private static Logger log = Logger.getLogger(TestPainter.class);
 
     public TestPainter() {
         init();
@@ -22,9 +24,10 @@ public class TestPainter implements Painter {
     public String startPainting() {
         try {
             String result = br.readLine();
+            log.trace(result);
             return result;
         } catch (IOException e) {
-            e.printStackTrace();
+            log.warn("Failure to read line from file", e);
         }
         return null;
     }
