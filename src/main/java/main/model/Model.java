@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -50,11 +51,10 @@ public class Model implements IModel {
                         log.warn("Failure to change command sending speed", e);
                     }
                     String command = painter.startPainting();
-                    tellClients(command);
                     if (command == null) {
                         break;
                     }
-                    System.out.println(command); //todo delete
+                    tellClients(command);
                 }
             }
             status = ServerStatus.FINISHED;
@@ -98,16 +98,22 @@ public class Model implements IModel {
     }
 
     private void establishConnection() {
-        if (serverSocket == null) {
+        if (serverSocket != null) {
             try {
-                serverSocket = new ServerSocket(port);
-                log.info("Server socket is opened");
+                serverSocket.close();
             } catch (IOException e) {
-                status = ServerStatus.ERROR;
-                notifyModelObservers();
-                log.error("Failure to open service socket", e);
+                log.error("Failure to close server socket", e);
             }
         }
+        try {
+            serverSocket = new ServerSocket(port);
+            log.info("Server socket port:" + port + " is opened");
+        } catch (IOException e) {
+            status = ServerStatus.ERROR;
+            notifyModelObservers();
+            log.error("Failure to open service socket", e);
+        }
+
     }
 
     private void startSendingMessage(GraphicalMode mode) {
@@ -117,19 +123,18 @@ public class Model implements IModel {
                 status = ServerStatus.OK;
                 notifyModelObservers();
                 Socket socket = serverSocket.accept();
-                PrintWriter writer = null;
                 try {
-                    writer = new PrintWriter(socket.getOutputStream());
+                    PrintWriter writer = new PrintWriter(socket.getOutputStream());
+                    writers.add(writer);
+                    SocketAddress remoteSocketAddress = socket.getRemoteSocketAddress();
+                    log.info("Got connection from " + remoteSocketAddress.toString());
                 } catch (IOException e) {
                     log.warn("Failure to open a new PrintWriter to client", e);
                 }
-                writers.add(writer);
                 new Thread(new RequestHandler()).start();
             }
         } catch (IOException e) {
-            status = ServerStatus.ERROR;
-            notifyModelObservers();
-            log.error("Server socket is unavailable", e);
+            log.info("Server socket port:" + port + " is closed");
         }
     }
 

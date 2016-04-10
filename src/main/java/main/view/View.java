@@ -24,8 +24,8 @@ public class View implements IView, Observer {
     private JComboBox<GraphicalMode> graphicalMode;
     private JTextField port;
     private JLabel status;
-    private JLabel sendingSpeed;
-    private JSlider speedSlider;
+    private JLabel sendingDelay;
+    private JSlider delaySlider;
     private static View instance;
 
     private View(IModel model) {
@@ -57,19 +57,19 @@ public class View implements IView, Observer {
         startSendingButton = new JButton("Start sending");
         pauseButton = new JRadioButton("Pause");
         pauseButton.setEnabled(false);
-        speedSlider = new JSlider(SwingConstants.HORIZONTAL, 0, 500, 50);
-        speedSlider.setPreferredSize(new Dimension(100, 20));
-        speedSlider.setPaintTicks(true);
-        speedSlider.setPaintTrack(true);
-        speedSlider.setSnapToTicks(true);
-        port = new JTextField("29228");
+        delaySlider = new JSlider(SwingConstants.HORIZONTAL, 0, 500, 50);
+        delaySlider.setPreferredSize(new Dimension(100, 20));
+        delaySlider.setPaintTicks(true);
+        delaySlider.setPaintTrack(true);
+        delaySlider.setSnapToTicks(true);
+        port = new JTextField("29288");
         status = new JLabel();
-        sendingSpeed = new JLabel(speedSlider.getValue() + " commands/ms");
+        sendingDelay = new JLabel("delay " + delaySlider.getValue() + " ms");
         layout.setHorizontalGroup(layout.createParallelGroup()
                 .addGroup(layout.createSequentialGroup()
                         .addComponent(graphicalMode)
-                        .addComponent(speedSlider)
-                        .addComponent(sendingSpeed))
+                        .addComponent(sendingDelay)
+                        .addComponent(delaySlider))
                 .addGroup(layout.createSequentialGroup()
                         .addComponent(port)
                         .addComponent(startSendingButton)
@@ -79,8 +79,8 @@ public class View implements IView, Observer {
         layout.setVerticalGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup()
                         .addComponent(graphicalMode)
-                        .addComponent(speedSlider)
-                        .addComponent(sendingSpeed))
+                        .addComponent(sendingDelay)
+                        .addComponent(delaySlider))
                 .addGroup(layout.createParallelGroup()
                         .addComponent(port)
                         .addComponent(startSendingButton)
@@ -110,12 +110,12 @@ public class View implements IView, Observer {
                 }
             }
         });
-        speedSlider.addChangeListener(new ChangeListener() {
+        delaySlider.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
-                int speed = speedSlider.getValue();
-                sendingSpeed.setText(speed + " commands/ms");
-                controller.setSendingSpeed(speed);
+                int delay = delaySlider.getValue();
+                sendingDelay.setText("delay " + delay + " ms");
+                controller.setSendingSpeed(delay);
             }
         });
     }
@@ -127,7 +127,7 @@ public class View implements IView, Observer {
             status.setText("Incorrect port");
             return;
         }
-        controller.setSendingSpeed(speedSlider.getValue());
+        controller.setSendingSpeed(delaySlider.getValue());
         controller.startServer((GraphicalMode) graphicalMode.getSelectedItem());
         graphicalMode.setEnabled(false);
         startSendingButton.setEnabled(false);
