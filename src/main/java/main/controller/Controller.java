@@ -18,7 +18,7 @@ public class Controller implements IController {
     }
 
     @Override
-    public ServerStatus startServer(final GraphicalMode mode) {
+    public void startServer(final GraphicalMode mode) {
         Thread startServerThread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -26,7 +26,6 @@ public class Controller implements IController {
             }
         });
         startServerThread.start();
-        return null;
     }
 
     @Override

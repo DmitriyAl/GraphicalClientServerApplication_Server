@@ -7,7 +7,7 @@ import main.model.ServerStatus;
  * @author Dmitriy Albot
  */
 public interface IController {
-    ServerStatus startServer(GraphicalMode mode);
+    void startServer(GraphicalMode mode);
 
     void pauseServer();
 
