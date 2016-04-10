@@ -54,7 +54,7 @@ public class View implements IView, Observer {
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
         graphicalMode = new JComboBox<>(GraphicalMode.values());
-        startSendingButton = new JButton("Start sending");
+        startSendingButton = new JButton("Start server");
         pauseButton = new JRadioButton("Pause");
         pauseButton.setEnabled(false);
         delaySlider = new JSlider(SwingConstants.HORIZONTAL, 0, 500, 50);
