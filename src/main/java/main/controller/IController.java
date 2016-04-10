@@ -8,13 +8,9 @@ import main.model.ServerStatus;
  */
 public interface IController {
     void startServer(GraphicalMode mode);
-
     void pauseServer();
-
     void resumeServer();
-
     void setSendingSpeed(int speed);
-
     boolean setPort(String portNumber);
 }
 

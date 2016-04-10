@@ -84,7 +84,6 @@ public class Model implements IModel {
             notifyModelObservers();
             log.error("Failure to open service socket", e);
         }
-
     }
 
     private void startSendingMessage(GraphicalMode mode) {
@@ -158,5 +157,4 @@ public class Model implements IModel {
     public void addObserver(Observer observer) {
         observers.add(observer);
     }
-
 }
