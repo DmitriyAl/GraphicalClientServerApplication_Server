@@ -2,7 +2,6 @@ package main.controller;
 
 import main.model.GraphicalMode;
 import main.model.IModel;
-import main.model.ServerStatus;
 import main.view.IView;
 
 /**

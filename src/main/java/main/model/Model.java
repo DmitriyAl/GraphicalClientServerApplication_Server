@@ -22,8 +22,8 @@ public class Model implements IModel {
     private List<PrintWriter> writers;
     private ServerStatus status;
     private ServerSocket serverSocket;
-    private final Object lock = new Object();
     private volatile boolean isPaused;
+    private final Object lock = new Object();
     private static Logger log = Logger.getLogger(Model.class);
 
     public Model() {
@@ -32,48 +32,19 @@ public class Model implements IModel {
         writers = new ArrayList<>();
     }
 
-    public class RequestHandler implements Runnable {
-
-        @Override
-        public void run() {
-            while (true) {
-                synchronized (lock) {
-                    if (isPaused) {
-                        try {
-                            lock.wait();
-                        } catch (InterruptedException e) {
-                            log.warn("Failure to pause the server", e);
-                        }
-                    }
-                    try {
-                        Thread.sleep(sendingSpeed);
-                    } catch (InterruptedException e) {
-                        log.warn("Failure to change command sending speed", e);
-                    }
-                    String command = painter.startPainting();
-                    if (command == null) {
-                        break;
-                    }
-                    tellClients(command);
-                }
-            }
-            status = ServerStatus.FINISHED;
-            notifyModelObservers();
-        }
-    }
-
-    private void tellClients(String command) {
-        Iterator<PrintWriter> iterator = writers.iterator();
-        while (iterator.hasNext()) {
-            PrintWriter writer = iterator.next();
-            writer.println(command);
-            writer.flush();
-        }
-    }
-
     @Override
     public ServerStatus getStatus() {
         return status;
+    }
+
+    @Override
+    public void setSendingSpeed(int speed) {
+        this.sendingSpeed = speed;
+    }
+
+    @Override
+    public void setPort(int port) {
+        this.port = port;
     }
 
     @Override
@@ -138,6 +109,44 @@ public class Model implements IModel {
         }
     }
 
+    public class RequestHandler implements Runnable {
+        @Override
+        public void run() {
+            while (true) {
+                synchronized (lock) {
+                    if (isPaused) {
+                        try {
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            log.warn("Failure to pause the server", e);
+                        }
+                    }
+                    try {
+                        Thread.sleep(sendingSpeed);
+                    } catch (InterruptedException e) {
+                        log.warn("Failure to change command sending speed", e);
+                    }
+                    String command = painter.startPainting();
+                    if (command == null) {
+                        break;
+                    }
+                    tellClients(command);
+                }
+            }
+            status = ServerStatus.FINISHED;
+            notifyModelObservers();
+        }
+    }
+
+    private void tellClients(String command) {
+        Iterator<PrintWriter> iterator = writers.iterator();
+        while (iterator.hasNext()) {
+            PrintWriter writer = iterator.next();
+            writer.println(command);
+            writer.flush();
+        }
+    }
+
     @Override
     public void notifyModelObservers() {
         for (Observer observer : observers) {
@@ -150,13 +159,4 @@ public class Model implements IModel {
         observers.add(observer);
     }
 
-    @Override
-    public void setSendingSpeed(int speed) {
-        this.sendingSpeed = speed;
-    }
-
-    @Override
-    public void setPort(int port) {
-        this.port = port;
-    }
 }
