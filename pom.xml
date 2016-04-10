@@ -8,6 +8,13 @@
     <artifactId>server</artifactId>
     <version>1.0</version>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <product.title>Server</product.title>
+        <product.year>2016</product.year>
+        <jdkVersion>1.7</jdkVersion>
+    </properties>
+
     <build>
         <finalName>albot_server</finalName>
         <plugins>
